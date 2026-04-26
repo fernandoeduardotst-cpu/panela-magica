@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panela Mágica – Monte seu Macarrão</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0b07;
+    --surface: #1a1410;
+    --surface2: #241e17;
+    --orange: #e8650a;
+    --orange2: #ff8c3a;
+    --gold: #c9a84c;
+    --text: #f0e6d3;
+    --muted: #8a7a68;
+    --border: #2e2520;
+    --selected-bg: #2d1a08;
+    --selected-border: #e8650a;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 120px; }
+  .header { background: linear-gradient(160deg, #1a0f05 0%, #0e0b07 60%); padding: 28px 20px 24px; text-align: center; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,101,10,0.18) 0%, transparent 70%); }
+  .logo-icon { font-size: 36px; display: block; margin-bottom: 6px; position: relative; }
+  .logo-name { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: 1px; position: relative; }
+  .logo-sub { font-size: 10px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-top: 2px; position: relative; }
+  .header-tagline { margin-top: 14px; font-size: 13px; color: var(--muted); position: relative; }
+  .header-tagline strong { color: var(--orange2); }
+  .section { margin: 16px 16px 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .section-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .section-icon { font-size: 18px; }
+  .section-title { font-weight: 600; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: var(--text); }
+  .section-badge { margin-left: auto; font-size: 10px; color: var(--muted); background: var(--border); padding: 2px 8px; border-radius: 20px; }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
+  .options-grid.single { grid-template-columns: 1fr 1fr 1fr; }
+  .option { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 10px; cursor: pointer; transition: all .2s; background: var(--bg); display: flex; align-items: center; gap: 10px; user-select: none; }
+  .option:active { transform: scale(0.97); }
+  .option.selected { border-color: var(--selected-border); background: var(--selected-bg); }
+  .option-check { width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; font-size: 11px; }
+  .option.selected .option-check { background: var(--orange); border-color: var(--orange); color: white; }
+  .option-label { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .option-price { font-size: 11px; color: var(--orange2); margin-top: 2px; font-weight: 600; }
+  .option.radio .option-check { border-radius: 50%; }
+  .bebida-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; cursor: pointer; transition: background .2s; }
+  .bebida-row:last-child { border-bottom: none; }
+  .bebida-row:active { background: var(--surface2); }
+  .bebida-check { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; transition: all .2s; }
+  .bebida-row.selected .bebida-check { background: var(--orange); border-color: var(--orange); color: white; }
+  .bebida-info { flex: 1; }
+  .bebida-name { font-size: 13px; font-weight: 500; }
+  .bebida-price { font-size: 12px; color: var(--orange2); font-weight: 600; }
+  .bebida-qty { display: flex; align-items: center; gap: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .bebida-row.selected .bebida-qty { opacity: 1; pointer-events: all; }
+  .qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--orange); background: transparent; color: var(--orange); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: all .15s; }
+  .qty-btn:active { background: var(--orange); color: white; }
+  .qty-num { font-size: 14px; font-weight: 600; min-width: 16px; text-align: center; }
+  .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
+  .pay-opt { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px; cursor: pointer; text-align: center; transition: all .2s; background: var(--bg); }
+  .pay-opt:active { transform: scale(0.97); }
+  .pay-opt.selected { border-color: var(--orange); background: var(--selected-bg); }
+  .pay-icon { font-size: 22px; margin-bottom: 4px; }
+  .pay-label { font-size: 12px; font-weight: 500; }
+  .input-wrap { padding: 14px; }
+  .custom-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 12px 14px; outline: none; transition: border-color .2s; }
+  .custom-input:focus { border-color: var(--orange); }
+  .custom-input::placeholder { color: var(--muted); }
+  .obs-area { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 12px 14px; outline: none; resize: none; min-height: 80px; transition: border-color .2s; }
+  .obs-area:focus { border-color: var(--orange); }
+  .obs-area::placeholder { color: var(--muted); }
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 14px 16px; z-index: 100; }
+  .send-btn { width: 100%; background: linear-gradient(135deg, var(--orange) 0%, #c94d00 100%); color: white; border: none; border-radius: var(--radius-sm); padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all .2s; box-shadow: 0 4px 20px rgba(232,101,10,0.35); }
+  .send-btn:active { transform: scale(0.98); opacity: .9; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: 24px 20px 32px; transform: translateY(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); border-top: 1px solid var(--border); }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .resumo-cat { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 4px; }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .btn-confirm { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border: none; border-radius: var(--radius-sm); padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(37,211,102,0.3); }
+  .btn-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; }
+  .section-gap { height: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo-icon">🍝</span>
+  <div class="logo-name">Panela Mágica</div>
+  <div class="logo-sub">Monte seu Macarrão</div>
+  <div class="header-tagline">Escolha os ingredientes e <strong>envie seu pedido</strong></div>
+</div>
+
+<!-- DADOS -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">👤</span><span class="section-title">Seus dados</span></div>
+  <div class="input-wrap" style="display:flex;gap:10px;">
+    <input class="custom-input" id="nome" placeholder="Seu nome" style="flex:1">
+    <input class="custom-input" id="telefone" placeholder="Telefone" style="width:130px">
+  </div>
+  <div class="input-wrap" style="padding-top:0;display:flex;gap:10px;">
+    <input class="custom-input" id="endereco" placeholder="Endereço (rua, bairro...)" style="flex:1">
+    <input class="custom-input" id="numero" placeholder="Nº" style="width:70px">
+  </div>
+  <div class="input-wrap" style="padding-top:0;">
+    <input class="custom-input" id="referencia" placeholder="Ponto de referência">
+  </div>
+</div>
+
+<!-- PROTEÍNA -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🥩</span><span class="section-title">Proteína</span><span class="section-badge">Escolha 1</span></div>
+  <div class="options-grid">
+    <div class="option radio" data-group="carne" data-val="Carne moída (R$25)" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Carne Moída</div><div class="option-price">R$ 25,00</div></div></div>
+    <div class="option radio" data-group="carne" data-val="Frango desfiado (R$25)" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Frango Desfiado</div><div class="option-price">R$ 25,00</div></div></div>
+    <div class="option radio" data-group="carne" data-val="Camarão (R$30)" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Camarão</div><div class="option-price">R$ 30,00</div></div></div>
+  </div>
+</div>
+
+<!-- MASSA -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🍝</span><span class="section-title">Massa</span><span class="section-badge">Escolha 1</span></div>
+  <div class="options-grid single">
+    <div class="option radio" data-group="massa" data-val="Penne" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Penne</div></div></div>
+    <div class="option radio" data-group="massa" data-val="Ninho" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Ninho</div></div></div>
+  </div>
+</div>
+
+<!-- PREPARO -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🔥</span><span class="section-title">Preparo</span><span class="section-badge">Escolha 1</span></div>
+  <div class="options-grid single">
+    <div class="option radio" data-group="preparo" data-val="Manteiga" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Manteiga</div></div></div>
+    <div class="option radio" data-group="preparo" data-val="Azeite" onclick="selectRadio(this)"><div class="option-check"></div><div><div class="option-label">Azeite</div></div></div>
+  </div>
+</div>
+
+<!-- MOLHO -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🍅</span><span class="section-title">Molho</span><span class="section-badge">Máx. 2</span></div>
+  <div class="options-grid single">
+    <div class="option" data-group="molho" data-val="Bolonhesa" onclick="selectCheck(this,'molho',2)"><div class="option-check"></div><div><div class="option-label">Bolonhesa</div></div></div>
+    <div class="option" data-group="molho" data-val="Branco" onclick="selectCheck(this,'molho',2)"><div class="option-check"></div><div><div class="option-label">Branco</div></div></div>
+    <div class="option" data-group="molho" data-val="Rosê" onclick="selectCheck(this,'molho',2)"><div class="option-check"></div><div><div class="option-label">Rosê</div></div></div>
+  </div>
+</div>
+
+<!-- TEMPEROS -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🌶️</span><span class="section-title">Temperos</span><span class="section-badge">Vários</span></div>
+  <div class="options-grid">
+    <div class="option" data-group="tempero" data-val="Sal" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Sal</div></div></div>
+    <div class="option" data-group="tempero" data-val="Pimenta calabresa" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Pimenta calabresa</div></div></div>
+    <div class="option" data-group="tempero" data-val="Pimenta do reino" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Pimenta do reino</div></div></div>
+    <div class="option" data-group="tempero" data-val="Coentro" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Coentro</div></div></div>
+    <div class="option" data-group="tempero" data-val="Orégano" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Orégano</div></div></div>
+    <div class="option" data-group="tempero" data-val="Cebolinha" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Cebolinha</div></div></div>
+    <div class="option" data-group="tempero" data-val="Alho" onclick="selectCheck(this,'tempero',99)"><div class="option-check"></div><div><div class="option-label">Alho</div></div></div>
+  </div>
+</div>
+
+<!-- INGREDIENTES -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🧀</span><span class="section-title">Ingredientes</span><span class="section-badge">Vários</span></div>
+  <div class="options-grid">
+    <div class="option" data-group="ing" data-val="Presunto" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Presunto</div></div></div>
+    <div class="option" data-group="ing" data-val="Calabresa" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Calabresa</div></div></div>
+    <div class="option" data-group="ing" data-val="Queijo muçarela" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Queijo muçarela</div></div></div>
+    <div class="option" data-group="ing" data-val="Milho" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Milho</div></div></div>
+    <div class="option" data-group="ing" data-val="Uva passas" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Uva passas</div></div></div>
+    <div class="option" data-group="ing" data-val="Tomate" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Tomate</div></div></div>
+    <div class="option" data-group="ing" data-val="Cheddar" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Cheddar</div></div></div>
+    <div class="option" data-group="ing" data-val="Batata palha" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Batata palha</div></div></div>
+    <div class="option" data-group="ing" data-val="Ovo de codorna" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Ovo de codorna</div></div></div>
+    <div class="option" data-group="ing" data-val="Requeijão cremoso" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Requeijão cremoso</div></div></div>
+    <div class="option" data-group="ing" data-val="Cenoura" onclick="selectCheck(this,'ing',99)"><div class="option-check"></div><div><div class="option-label">Cenoura</div></div></div>
+  </div>
+</div>
+
+<!-- BEBIDAS -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">🥤</span><span class="section-title">Bebidas</span><span class="section-badge">Opcional</span></div>
+  <div id="bebidas-list">
+    <div class="bebida-row" data-val="Coca-Cola lata" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Coca-Cola lata</div><div class="bebida-price">R$ 5,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+    <div class="bebida-row" data-val="Fanta lata" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Fanta lata</div><div class="bebida-price">R$ 5,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+    <div class="bebida-row" data-val="Coca-Cola 2L" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Coca-Cola 2L</div><div class="bebida-price">R$ 14,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+    <div class="bebida-row" data-val="Fanta 2L" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Fanta 2L</div><div class="bebida-price">R$ 12,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+    <div class="bebida-row" data-val="Guaraná Antártica 2L" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Guaraná Antártica 2L</div><div class="bebida-price">R$ 12,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+    <div class="bebida-row" data-val="Água com gás" onclick="toggleBebida(this)"><div class="bebida-check"></div><div class="bebida-info"><div class="bebida-name">Água com gás</div><div class="bebida-price">R$ 3,00</div></div><div class="bebida-qty"><button class="qty-btn" onclick="changeQty(event,this,-1)">−</button><span class="qty-num">1</span><button class="qty-btn" onclick="changeQty(event,this,+1)">+</button></div></div>
+  </div>
+</div>
+
+<!-- PAGAMENTO -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">💳</span><span class="section-title">Forma de pagamento</span></div>
+  <div class="pay-grid">
+    <div class="pay-opt" data-group="pag" data-val="Pix" onclick="selectPay(this)"><div class="pay-icon">📱</div><div class="pay-label">Pix</div></div>
+    <div class="pay-opt" data-group="pag" data-val="Débito" onclick="selectPay(this)"><div class="pay-icon">💳</div><div class="pay-label">Débito</div></div>
+    <div class="pay-opt" data-group="pag" data-val="Crédito" onclick="selectPay(this)"><div class="pay-icon">💳</div><div class="pay-label">Crédito</div></div>
+    <div class="pay-opt" data-group="pag" data-val="Dinheiro" onclick="selectPay(this)"><div class="pay-icon">💵</div><div class="pay-label">Dinheiro</div></div>
+  </div>
+</div>
+
+<!-- OBS -->
+
+<div class="section">
+  <div class="section-header"><span class="section-icon">📝</span><span class="section-title">Observações</span><span class="section-badge">Opcional</span></div>
+  <div class="input-wrap"><textarea class="obs-area" id="obs" placeholder="Alguma observação? Ex: sem cebola, bem passado..."></textarea></div>
+</div>
+
+<div class="section-gap"></div>
+
+<div class="bottom-bar">
+  <button class="send-btn" onclick="abrirResumo()">
+    <span>💬</span> Ver resumo e enviar pedido
+  </button>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="fecharModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Resumo do pedido</div>
+    <div id="resumo-content"></div>
+    <div class="modal-btns">
+      <button class="btn-confirm" onclick="enviarWhatsApp()"><span>📲</span> Enviar pelo WhatsApp</button>
+      <button class="btn-cancel" onclick="fecharModal()">Voltar e editar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const WHATSAPP = "5562996458788";
+
+  function selectRadio(el) {
+    const g = el.dataset.group;
+    document.querySelectorAll(`[data-group="${g}"]`).forEach(o => { o.classList.remove('selected'); o.querySelector('.option-check').textContent = ''; });
+    el.classList.add('selected'); el.querySelector('.option-check').textContent = '✓';
+  }
+  function selectCheck(el, group, max) {
+    const sel = document.querySelectorAll(`[data-group="${group}"].selected`);
+    if (!el.classList.contains('selected') && sel.length >= max) return;
+    el.classList.toggle('selected');
+    el.querySelector('.option-check').textContent = el.classList.contains('selected') ? '✓' : '';
+  }
+  function selectPay(el) {
+    document.querySelectorAll('.pay-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function toggleBebida(el) {
+    el.classList.toggle('selected');
+    el.querySelector('.bebida-check').textContent = el.classList.contains('selected') ? '✓' : '';
+  }
+  function changeQty(e, btn, delta) {
+    e.stopPropagation();
+    const num = btn.closest('.bebida-row').querySelector('.qty-num');
+    let q = parseInt(num.textContent) + delta;
+    num.textContent = Math.min(9, Math.max(1, q));
+  }
+  function getVal(g) {
+    return [...document.querySelectorAll(`[data-group="${g}"].selected`)].map(e => e.dataset.val).join(', ') || '—';
+  }
+  function abrirResumo() {
+    const nome = document.getElementById('nome').value.trim() || 'Não informado';
+    const tel = document.getElementById('telefone').value.trim() || '—';
+    const end = document.getElementById('endereco').value.trim() || '—';
+    const num = document.getElementById('numero').value.trim() || '—';
+    const ref = document.getElementById('referencia').value.trim() || '—';
+    const obs = document.getElementById('obs').value.trim();
+    const beb = [...document.querySelectorAll('.bebida-row.selected')].map(r => `${r.querySelector('.qty-num').textContent}x ${r.dataset.val}`).join(', ') || '—';
+    const rows = [
+      {cat:'👤 Cliente',val:nome},{cat:'📞 Telefone',val:tel},
+      {cat:'📍 Endereço',val:`${end}, Nº ${num}`},{cat:'🏠 Referência',val:ref},
+      {cat:'🥩 Proteína',val:getVal('carne')},{cat:'🍝 Massa',val:getVal('massa')},
+      {cat:'🔥 Preparo',val:getVal('preparo')},{cat:'🍅 Molho',val:getVal('molho')},
+      {cat:'🌶️ Temperos',val:getVal('tempero')},{cat:'🧀 Ingredientes',val:getVal('ing')},
+      {cat:'🥤 Bebidas',val:beb},{cat:'💳 Pagamento',val:getVal('pag')},
+    ];
+    if (obs) rows.push({cat:'📝 Obs',val:obs});
+    document.getElementById('resumo-content').innerHTML = rows.map(r=>`<div class="resumo-cat">${r.cat}</div><div class="resumo-item"><span>${r.val}</span></div>`).join('');
+    document.getElementById('modal').classList.add('open');
+  }
+  function fecharModal(e) {
+    if (!e || e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('open');
+  }
+  function enviarWhatsApp() {
+    const nome = document.getElementById('nome').value.trim() || 'Não informado';
+    const tel = document.getElementById('telefone').value.trim() || '—';
+    const end = document.getElementById('endereco').value.trim() || '—';
+    const num = document.getElementById('numero').value.trim() || '—';
+    const ref = document.getElementById('referencia').value.trim() || '—';
+    const obs = document.getElementById('obs').value.trim();
+    const beb = [...document.querySelectorAll('.bebida-row.selected')].map(r=>`   • ${r.querySelector('.qty-num').textContent}x ${r.dataset.val}`).join('\n') || '   • Nenhuma';
+    const msg = [`🍝 *NOVO PEDIDO – Panela Mágica*`,``,`👤 *Cliente:* ${nome}`,`📞 *Telefone:* ${tel}`,`📍 *Endereço:* ${end}, Nº ${num}`,`🏠 *Referência:* ${ref}`,``,`🥩 *Proteína:* ${getVal('carne')}`,`🍝 *Massa:* ${getVal('massa')}`,`🔥 *Preparo:* ${getVal('preparo')}`,`🍅 *Molho:* ${getVal('molho')}`,`🌶️ *Temperos:* ${getVal('tempero')}`,`🧀 *Ingredientes:* ${getVal('ing')}`,`🥤 *Bebidas:*\n${beb}`,`💳 *Pagamento:* ${getVal('pag')}`,obs?`📝 *Obs:* ${obs}`:null,``,`_Pedido enviado pelo cardápio digital_ ✅`].filter(Boolean).join('\n');
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
+  }
+</script>
+
+</body>
+</html>
